@@ -1,0 +1,6 @@
+name: EasterCounter
+description: by InTostor
+author: Toster
+version: 0.1
+main: ru.net.explorers.App
+commands:

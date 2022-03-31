@@ -4,3 +4,4 @@ author: Toster
 version: 0.1
 main: ru.net.explorers.App
 commands:
+api-version: 1.13

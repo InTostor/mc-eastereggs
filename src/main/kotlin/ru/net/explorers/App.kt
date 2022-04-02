@@ -12,6 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.Material;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.event.block.SignChangeEvent;
 
 import java.lang.Enum.*;
 
@@ -51,10 +52,32 @@ public  fun onPlayerInteract(event: PlayerInteractEvent){
         player.sendMessage("You found a secret!");
     }
 
-
 }
 
 
 }
 
+
+fun getEggId(loc: Location){
+
+    // searching in egg database
+    // returns id of sign and its group
 }
+
+
+fun isEggExists(){
+
+}
+
+fun isEggFoundLater(){
+    
+}
+
+fun onEggClick(){
+    
+}
+
+
+
+} 
+// end of class

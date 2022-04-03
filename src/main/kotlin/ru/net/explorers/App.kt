@@ -129,6 +129,8 @@ public fun dbConnect(database: File) {
     var conn: Connection;
     var url: String = "jdbc:sqlite:"+ database.toString();
     conn = DriverManager.getConnection(url);
+    val stmnt=conn.createStatement();
+
 
     conn.close();
     console.sendMessage("connected and disconnected")
@@ -152,6 +154,26 @@ public class Egg{
     fun isExists(){
         
     }
+
+}
+
+public class sqliteDb(var file: File){
+    var url: String = "jdbc:sqlite:"+ this.file.toString();
+    var conn: Connection = DriverManager.getConnection(url);
+    var stmt: Statement = conn.createStatement();
+
+    
+    fun exec(statement: String,operationType: String){
+        val rs: ResultSet = stmt.executeQuery(statement); //Type mismatch: inferred type is ResultSet but Unit was expected
+        return rs;
+    }
+
+
+
+    fun close(){
+        this.conn.close();
+    }
+    
 
 }
 

@@ -1,5 +1,25 @@
 package ru.net.explorers;
 
+// java internal
+import java.lang.Enum.*;
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.File;
+import java.sql.SQLException;
+import java.sql.Connection;  
+import java.sql.DriverManager;  
+import java.sql.ResultSet;  
+import java.sql.Statement;
+import java.sql.*;
+import java.util.Properties;
+import java.lang.Exception;
+
+
+
+// minecraft server API
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -14,18 +34,35 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.event.block.SignChangeEvent;
 
-import java.lang.Enum.*;
 
 
 
 public class App : JavaPlugin(),Listener{
     val console=Bukkit.getConsoleSender()
+    var pluginName: String = "NA";
+
 
 override public fun onEnable(){
-    console.sendMessage("§6[Easter counter] Plugin loaded!");
     Bukkit.getServer().getPluginManager().registerEvents(this, this);
+    val plugin = this;
+    this.pluginName = "EggCounter";
     saveDefaultConfig();
     reloadConfig();
+    
+
+
+    console.sendMessage(("§6["+pluginName+"] Plugin loaded!"));
+    
+    
+
+
+    val eggDb = File(plugin.getDataFolder(), "db.sqlite");
+    if( !(eggDb.exists() && !eggDb.isDirectory()) ){
+    this.firstStart(eggDb);
+}
+
+
+
 }
 
 @EventHandler
@@ -33,17 +70,16 @@ public fun onPlayerJoin(e: PlayerJoinEvent) {
     val player = e.getPlayer();
 
     player.playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_BREAK, 1f, 1f);
-    console.sendMessage("§6[Easter counter] Event")
+
 
     }
 
 @EventHandler
 public  fun onPlayerInteract(event: PlayerInteractEvent){    
     val player = event.getPlayer();
-    val block = event.getBlock()
-    val action = event.getAction()
+    val action = event.getAction();
+    val block = event.getClickedBlock();
 
-    if action.isRightClick(){
     
     if (block?.getType() == Material.BEDROCK){
         player.playSound(player.getLocation(), Sound.AMBIENT_CAVE, 2f, 0.75f);
@@ -52,32 +88,71 @@ public  fun onPlayerInteract(event: PlayerInteractEvent){
         player.sendMessage("You found a secret!");
     }
 
+
+
+
 }
 
-
-}
-
-
-fun getEggId(loc: Location){
-
-    // searching in egg database
-    // returns id of sign and its group
-}
 
 
 fun isEggExists(){
 
 }
 
+
 fun isEggFoundLater(){
-    
+
 }
+
 
 fun onEggClick(){
     
 }
 
 
+fun firstStart(eggDb: File){
+    // make eggDb.json
+    console.sendMessage(("§6["+pluginName+"] Plugin is starting first time, or !"))
+    try {
+        eggDb.createNewFile();
+    } catch (e: IOException) {
+        e.printStackTrace();
+    }
+
+    dbConnect(eggDb);
+
+
+
+}
+
+public fun dbConnect(database: File) {
+    var conn: Connection;
+    var url: String = "jdbc:sqlite:"+ database.toString();
+    conn = DriverManager.getConnection(url);
+
+    conn.close();
+    console.sendMessage("connected and disconnected")
+            
+}
+
 
 } 
-// end of class
+// end of main class
+
+
+// egg object
+public class Egg{
+    var id: String = "Null";
+    var group_id: String = "Null";
+    var locationX: Double = 0.0;
+    var locationY: Double = 0.0;
+    var locationZ: Double = 0.0;
+    var locationWorld: String = "Null";
+
+    fun isExists(){
+        
+    }
+
+}
+
+

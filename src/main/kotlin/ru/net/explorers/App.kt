@@ -119,23 +119,23 @@ fun firstStart(eggDb: File){
         e.printStackTrace();
     }
 
-    dbConnect(eggDb);
+    var sqlStart:String = "CREATE TABLE eggs"
+    "(egg_id INTEGER PRIMARY KEY,"+
+	"egg_name TEXT NOT NULL,"+
+	"group_name TEXT NOT NULL ,"+
+	"location_x TEXT NOT NULL ,"+
+	"location_y TEXT NOT NULL ,"+
+	"location_z INTEGER NOT NULL ,"+
+	"location_world TEXT NOT NULL)";
+    
+    val edb: SqliteDb = SqliteDb(eggDb);
+    edb.open();
+    edb.connection.createStatement().executeQuery(sqlStart)
 
 
 
 }
 
-public fun dbConnect(database: File) {
-    var conn: Connection;
-    var url: String = "jdbc:sqlite:"+ database.toString();
-    conn = DriverManager.getConnection(url);
-    val stmnt=conn.createStatement();
-
-
-    conn.close();
-    console.sendMessage("connected and disconnected")
-            
-}
 
 
 } 
@@ -157,23 +157,24 @@ public class Egg{
 
 }
 
-public class sqliteDb(var file: File){
+public class SqliteDb(var file: File){
     var url: String = "jdbc:sqlite:"+ this.file.toString();
-    var conn: Connection = DriverManager.getConnection(url);
-    var stmt: Statement = conn.createStatement();
+    var opened: Boolean = false;
+    lateinit var connection: Connection;
 
-    
-    fun exec(statement: String,operationType: String){
-        val rs: ResultSet = stmt.executeQuery(statement); //Type mismatch: inferred type is ResultSet but Unit was expected
-        return rs;
+
+    public fun open(){
+       this.connection = DriverManager.getConnection(url);
+       this.opened=true;
     }
 
+        // var statement: Statement = this.connection.createStatement();
+        // var result: ResultSet = statement.executeQuery(sql);
 
-
-    fun close(){
-        this.conn.close();
+    public fun close(){
+        this.connection.close()
     }
-    
+
 
 }
 

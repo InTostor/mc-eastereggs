@@ -1,3 +1,5 @@
 {
-    "java.configuration.updateBuildConfiguration": "disabled"
+    "java.configuration.updateBuildConfiguration": "disabled",
+    "java.dependency.packagePresentation": "hierarchical",
+    "maven.view": "hierarchical"
 }

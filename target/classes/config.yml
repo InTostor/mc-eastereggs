@@ -1,1 +1,5 @@
 locale: 'en-US'
+
+sql-url: "localhost:228"
+sql-user: "Communist"
+sql-password: "CarlMarx"

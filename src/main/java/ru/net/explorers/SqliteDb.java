@@ -1,6 +1,7 @@
 package ru.net.explorers;
 
 // ! NOT WORKING AT ALL!
+// !REWRITE IT AS SOON AS POSSIBLE!
 
 import java.io.File;
 

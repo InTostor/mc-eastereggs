@@ -1,5 +1,8 @@
 locale: 'en-US'
 
-sql-url: "localhost:228"
+data-storage: "mysql" # mysql | json
+
+# Fill this if you are using MYSQL
+sql-url: "localhost:228/easter_eggs" # ip:port/database
 sql-user: "Communist"
 sql-password: "CarlMarx"

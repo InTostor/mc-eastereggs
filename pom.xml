@@ -1,5 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,16 +40,19 @@
 
 
 
+
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
+            <!-- Unused (yet) kotlin support -->
+            <!-- <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <version>${kotlin.version}</version>
                 <executions>
                     <execution>
+                        <?m2e ignore?>
                         <id>compile</id>
                         <goals>
                             <goal>compile</goal>
@@ -59,6 +64,7 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <?m2e ignore?>
                         <id>test-compile</id>
                         <goals>
                             <goal>test-compile</goal>
@@ -112,7 +118,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> -->
         </plugins>
     </build>
 

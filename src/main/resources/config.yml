@@ -1,8 +1,8 @@
-locale: 'en-US'
+locale: 'en-US' # english only yet
 
 data-storage: "mysql" # mysql | json
 
-# Fill this if you are using MYSQL
+# Fill this if you are using MYSQL MSSQL POSTGRESQL or other
 sql-url: "localhost:228/easter_eggs" # ip:port/database
 sql-user: "Communist"
 sql-password: "CarlMarx"

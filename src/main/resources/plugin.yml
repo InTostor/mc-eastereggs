@@ -3,5 +3,10 @@ description: desc on github
 author: InTostor
 version: 0.1
 main: ru.net.explorers.App
+load: POSTWORLD
 commands:
 api-version: 1.13
+commands:
+    secc:
+        aliases: [scounter,eastercounter,]
+        description: main command of egg/secret counter plugin

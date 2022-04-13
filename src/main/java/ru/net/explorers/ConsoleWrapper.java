@@ -5,9 +5,6 @@ package ru.net.explorers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.plugin.Plugin;
-
-import ru.net.explorers.*;
 
 public class ConsoleWrapper {
     static String pluginName = App.pluginName;

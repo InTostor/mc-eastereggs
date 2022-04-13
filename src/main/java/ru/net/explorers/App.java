@@ -3,15 +3,11 @@ package ru.net.explorers;
 
 // java internal
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 // minecraft server API
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
+
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -28,11 +24,9 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.Plugin;
 
 //external
-import org.jetbrains.annotations.NotNull;
-import com.google.gson.JsonParser;
+// import org.jetbrains.annotations.NotNull;
 
 // self-made
-import ru.net.explorers.*;
 
 /**
  * Written and tested by InTostor with 🍏
@@ -84,7 +78,7 @@ public class App extends JavaPlugin implements Listener {
          */
 
         cw.notify(" Plugin is starting first time, or restoring!");
-
+        cw.notify(Constants.sqlFirstStart);
         if (data_storage != "MYSQL") {
 
             database.connect();
@@ -175,6 +169,20 @@ public class App extends JavaPlugin implements Listener {
     // todo commands
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         return true;
+    }
+
+    // TODO
+    void purgePlayer(Player player) {
+        String sql = "delete from " + Constants.playerTable + " where player='" + player.getName() + "';";
+        database.connect();
+        try {
+            database.statement.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            cw.alarm("Cant execute starting db query. Check trace");
+        } finally {
+            database.disconnect();
+        }
     }
 
 }

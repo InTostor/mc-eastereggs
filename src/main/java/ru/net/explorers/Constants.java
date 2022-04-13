@@ -20,9 +20,9 @@ public class Constants {
             "cmd tinytext," +
             "UNIQUE KEY id_UNIQUE (id)," +
             "UNIQUE KEY location_UNIQUE (location));" +
-            "CREATE TABLE" + // players table
-            "IF NOT EXISTS`players`(`player`" +
-            "varchar(64) NOT NULL," +
-            "`egg_id` VARCHAR(45) NULL);";
+            "CREATE TABLE IF NOT EXISTS `players`(" +
+            "id varchar(45) not null key AUTO_INCREMENT," +
+            "  `player` varchar(64) NOT NULL," +
+            "`egg_id` varchar(45) DEFAULT NULL);";
 
 }

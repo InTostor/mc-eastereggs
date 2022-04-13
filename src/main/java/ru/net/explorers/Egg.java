@@ -3,13 +3,13 @@ package ru.net.explorers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import ru.net.explorers.*;
+
 
 public class Egg {
     ConsoleWrapper cw = new ConsoleWrapper();
@@ -68,11 +68,12 @@ public class Egg {
     }
 
     public boolean isFoundBefore(Player player) {
-        String sql = "select egg_id from" + Constants.playerTable + "where(player='" + player.getName() + "');";
+        String sql = "select egg_id from " + Constants.playerTable + " where(player='" + player.getName() + "');";
+        cw.verboseLog(sql);
         database.connect();
         boolean contains = false;
         try {
-            ResultSet rs = database.statement.executeQuery(sql);
+            ResultSet rs = database.statement.executeQuery(sql);// ! something wrong there
             List<Integer> playerEggs = new ArrayList<Integer>();
             while (rs.next()) {
                 playerEggs.add(rs.getInt(1));

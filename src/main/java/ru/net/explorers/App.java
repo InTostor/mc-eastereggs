@@ -7,7 +7,7 @@ import java.sql.*;
 
 // minecraft server API
 import org.bukkit.Bukkit;
-
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -121,7 +121,7 @@ public class App extends JavaPlugin implements Listener {
     private void RmbBlockClick(Player player, Block block) {
 
         // Throttling this helps with large amount of sql queries.
-        // TODO bad code
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Egg egg = new Egg(block.getLocation(), database);
             egg.completeInfo();
@@ -144,13 +144,15 @@ public class App extends JavaPlugin implements Listener {
         // todo sequence after clicking an egg
         // notifying player that he found a secret, if its found first time - pushing
         // this to db
+        String foundEgg = ("§4Вы нашли секрет:§r" + egg.displayname + " §4из группы:§r" + egg.groupname + "|id:"
+                + egg.id);
 
         if (egg.isFoundBefore(player)) {
-            player.sendMessage("You found the secret, but not first time");
+            player.sendMessage(foundEgg);
+            player.sendMessage("Но не в первый раз");
 
         } else {
-            player.sendMessage("You found a secret!");
-            player.sendMessage("secret:" + egg.displayname + " which is in group:" + egg.groupname);
+            player.sendMessage(foundEgg);
             String sql = "insert into " + Constants.playerTable + "(player,egg_id)values('" + player.getName() + "',"
                     + egg.id + ");";
             database.connect();
@@ -168,12 +170,61 @@ public class App extends JavaPlugin implements Listener {
 
     // todo commands
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        sender.sendMessage(command.getName());
+        sender.sendMessage(args);
+
+        switch (args[0]) {
+            case ("purgeplayer"): {
+                purgePlayer(args[1]);
+            }
+                break;
+            case ("addegg"): {
+                Player player = (Player) sender;
+                addEgg(player.getTargetBlock(null, 5).getLocation(), args[1], args[2]);
+            }
+                break;
+            case ("delegg"): {
+                Player player = (Player) sender;
+                Egg segg = new Egg(player.getTargetBlock(null, 5).getLocation(), database);
+                segg.delete();
+            }
+                break;
+        }
+
         return true;
     }
 
-    // TODO
-    void purgePlayer(Player player) {
-        String sql = "delete from " + Constants.playerTable + " where player='" + player.getName() + "';";
+    void purgePlayer(String playerName) {
+        String sql = "delete from " + Constants.playerTable + " where player='" + playerName + "';";
+        database.connect();
+        try {
+            database.statement.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            cw.alarm("Cant execute starting db query. Check trace");
+        } finally {
+            database.disconnect();
+        }
+
+    }
+
+    void addEgg(Location location, String eggDisplayName, String eggGroupName) {
+        // todo inserting new egg to db. coords from <insert text>
+        Double locx = location.getX();
+        Double locy = location.getY();
+        Double locz = location.getZ();
+        String wname = location.getWorld().getName();
+        locx = (double) locx.intValue();
+        locy = (double) locy.intValue();
+        locz = (double) locz.intValue();
+
+        String loc = String.format("%.0f", locx) + ";"
+                + String.format("%.0f", locy) + ";"
+                + String.format("%.0f", locz)
+                + ";" + wname;
+
+        String sql = "insert into " + Constants.eggTable +
+                "(location,displayname,groupname)values('" + loc + "','" + eggDisplayName + "','" + eggGroupName + "')";
         database.connect();
         try {
             database.statement.execute(sql);

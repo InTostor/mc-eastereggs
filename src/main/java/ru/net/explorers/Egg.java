@@ -9,8 +9,6 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-
-
 public class Egg {
     ConsoleWrapper cw = new ConsoleWrapper();
     Integer id = null;
@@ -151,7 +149,16 @@ public class Egg {
     }
 
     public void delete() {
-        // todo sql DELETE * WHERE id=x
+        String sql = "delete from " + Constants.eggTable + " where id=" + this.id;
+        database.connect();
+        try {
+            database.statement.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            cw.alarm("Cant execute starting db query. Check trace");
+        } finally {
+            database.disconnect();
+        }
     }
 
 }

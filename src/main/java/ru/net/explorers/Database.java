@@ -51,6 +51,7 @@ public class Database {
     }
 
     /**
+     * /unused/
      * Method that adds row to the end of table
      * 
      * @param table   name of table, you want to add row
@@ -61,7 +62,7 @@ public class Database {
      */
     void addRow(String table, String columns, String values) {
         String sql = "INSERT INTO " + table + "(" + columns + ")VALUES(" + values + ");";
-        cw.notify(sql);
+        cw.verboseLog(sql);
         try {
             this.statement.execute(sql);
         } catch (SQLException e) {
@@ -80,9 +81,10 @@ public class Database {
             // this");
         }
 
+        // this.resultset = null;
+        // this.statement = null;
         this.con = null;
-        this.statement = null;
-        this.resultset = null;
+
     }
 
 }

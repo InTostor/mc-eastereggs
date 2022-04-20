@@ -78,13 +78,15 @@ public class App extends JavaPlugin implements Listener {
          */
 
         cw.notify(" Plugin is starting first time, or restoring!");
-        cw.notify(Constants.sqlFirstStart);
+        cw.verboseLog(Constants.sqlFirstStart1);
+        cw.verboseLog(Constants.sqlFirstStart2);
         if (data_storage != "MYSQL") {
 
             database.connect();
 
             try {
-                database.statement.execute(Constants.sqlFirstStart);
+                database.statement.execute(Constants.sqlFirstStart1);
+                database.statement.execute(Constants.sqlFirstStart2);
             } catch (SQLException e) {
                 e.printStackTrace();
                 cw.alarm("Cant execute starting db query. Check trace");
@@ -119,15 +121,12 @@ public class App extends JavaPlugin implements Listener {
     }
 
     private void RmbBlockClick(Player player, Block block) {
-
         // Throttling this helps with large amount of sql queries.
-
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Egg egg = new Egg(block.getLocation(), database);
             egg.completeInfo();
 
             if (egg.isExists() == true) {
-                player.sendMessage("You found a secret-" + egg.displayname.toString() + "-" + egg.groupname.toString());
                 onEggClick(egg, player);
             }
 
@@ -136,16 +135,46 @@ public class App extends JavaPlugin implements Listener {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        });
 
+        });
     }
 
     void onEggClick(Egg egg, Player player) {
         // todo sequence after clicking an egg
         // notifying player that he found a secret, if its found first time - pushing
         // this to db
-        String foundEgg = ("§4Вы нашли секрет:§r" + egg.displayname + " §4из группы:§r" + egg.groupname + "|id:"
-                + egg.id);
+
+        // * at this point, code turning in a mess
+        Integer foundeggs = 0;
+        String sql = "select count(*) from " + Constants.playerTable + " where egg_id in ("
+                + egg.getStringEggsInGroup() + ") and player='" + player.getName() + "';";
+
+        try {
+            database.connect();
+            cw.verboseLog("foundeggs" + sql);
+            ResultSet rs = database.statement.executeQuery(sql);
+
+            while (rs.next()) {
+                foundeggs = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            cw.alarm("Cant execute db query. Check trace");
+        } finally {
+            database.disconnect();
+        }
+        String eggmsg = egg.message;
+        if (eggmsg == null) {
+            eggmsg = ".";
+        }
+
+        if (foundeggs < egg.getAmountOf()) {
+            foundeggs = foundeggs + 1;
+        }
+
+        String foundEgg = "§4Вы нашли секрет:§r " + egg.displayname + " §4 из группы:§r " + egg.groupname + " | §6id:"
+                + egg.id + "\n" + eggmsg +
+                "\nПрогресс: | " + foundeggs + "/" + egg.getAmountOf() + " |";
 
         if (egg.isFoundBefore(player)) {
             player.sendMessage(foundEgg);
@@ -153,16 +182,16 @@ public class App extends JavaPlugin implements Listener {
 
         } else {
             player.sendMessage(foundEgg);
-            String sql = "insert into " + Constants.playerTable + "(player,egg_id)values('" + player.getName() + "',"
+
+            String sql2 = "insert into " + Constants.playerTable + "(player,egg_id)values('" + player.getName()
+                    + "',"
                     + egg.id + ");";
             database.connect();
             try {
-                database.statement.execute(sql);
+                database.statement.execute(sql2);
             } catch (SQLException e) {
                 e.printStackTrace();
                 cw.alarm("Cant execute starting db query. Check trace");
-            } finally {
-                database.disconnect();
             }
         }
 
@@ -170,8 +199,6 @@ public class App extends JavaPlugin implements Listener {
 
     // todo commands
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        sender.sendMessage(command.getName());
-        sender.sendMessage(args);
 
         switch (args[0]) {
             case ("purgeplayer"): {
@@ -180,15 +207,25 @@ public class App extends JavaPlugin implements Listener {
                 break;
             case ("addegg"): {
                 Player player = (Player) sender;
-                addEgg(player.getTargetBlock(null, 5).getLocation(), args[1], args[2]);
+                boolean res = addEgg(player.getTargetBlock(null, 5).getLocation(), args[1], args[2], args[3]);
+                if (res == true) {
+                    sender.sendMessage("Пасхалка создана (наверное)");
+                } else {
+                    sender.sendMessage("Пасхалка не создана потому что она уже существует");
+                }
             }
                 break;
             case ("delegg"): {
                 Player player = (Player) sender;
                 Egg segg = new Egg(player.getTargetBlock(null, 5).getLocation(), database);
+                segg.completeInfo();
                 segg.delete();
             }
                 break;
+            default: {
+                sender.sendMessage(
+                        "Такой команды нет, или была но вы ввели её неверно. Читайте гайды.\n Код ошибки: §k0");
+            }
         }
 
         return true;
@@ -208,7 +245,7 @@ public class App extends JavaPlugin implements Listener {
 
     }
 
-    void addEgg(Location location, String eggDisplayName, String eggGroupName) {
+    boolean addEgg(Location location, String eggDisplayName, String eggGroupName, String message) {
         // todo inserting new egg to db. coords from <insert text>
         Double locx = location.getX();
         Double locy = location.getY();
@@ -217,23 +254,36 @@ public class App extends JavaPlugin implements Listener {
         locx = (double) locx.intValue();
         locy = (double) locy.intValue();
         locz = (double) locz.intValue();
+        message = message.replace("_", " ");
+        eggDisplayName = eggDisplayName.replace("_", " ");
+        eggGroupName = eggGroupName.replace("_", " ");
+        Egg segg = new Egg(location, database);
+        segg.completeInfo();
+        if (segg.id == null) {
 
-        String loc = String.format("%.0f", locx) + ";"
-                + String.format("%.0f", locy) + ";"
-                + String.format("%.0f", locz)
-                + ";" + wname;
+            String loc = String.format("%.0f", locx) + ";"
+                    + String.format("%.0f", locy) + ";"
+                    + String.format("%.0f", locz)
+                    + ";" + wname;
 
-        String sql = "insert into " + Constants.eggTable +
-                "(location,displayname,groupname)values('" + loc + "','" + eggDisplayName + "','" + eggGroupName + "')";
-        database.connect();
-        try {
-            database.statement.execute(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            cw.alarm("Cant execute starting db query. Check trace");
-        } finally {
-            database.disconnect();
+            String sql = "insert into " + Constants.eggTable +
+                    "(location,displayname,groupname,msg)values('" +
+                    loc + "','" + eggDisplayName + "','" + eggGroupName + "','" + message + "')";
+            database.connect();
+            try {
+                database.statement.execute(sql);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                cw.alarm("Cant execute starting db query. Check trace");
+            } finally {
+                database.disconnect();
+            }
+            return true;
+
+        } else {
+            return false;
         }
+
     }
 
 }

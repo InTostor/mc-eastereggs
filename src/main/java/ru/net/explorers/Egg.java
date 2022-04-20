@@ -14,6 +14,7 @@ public class Egg {
     Integer id = null;
     String displayname = null;
     String groupname = null;
+    String message = null;
     Integer locationX = null;
     Integer locationY = null;
     Integer locationZ = null;
@@ -97,9 +98,9 @@ public class Egg {
 
             String loc = locationX.toString() + ";" + locationY.toString() + ";" + locationZ.toString() + ";"
                     + world.toString();
-            cw.debug(loc);
+            cw.verboseLog(loc);
             String sql = "select * from " + Constants.eggTable + " WHERE location='" + loc + "'";
-            cw.debug(sql);
+            cw.verboseLog(sql);
 
             database.connect();
             try {
@@ -111,14 +112,16 @@ public class Egg {
                     this.displayname = rs.getString(3);
                     this.groupname = rs.getString(4);
                     this.cmd = rs.getString(5);
+                    this.message = rs.getString(6);
 
                 }
 
             } catch (SQLException e) {
                 e.printStackTrace();
                 cw.alarm("Cant execute db query. Check trace");
+            } finally {
+                database.disconnect();
             }
-            database.disconnect();
 
             // if we have only id
         } else if (this.id != null && locationX == null) {
@@ -132,11 +135,14 @@ public class Egg {
                     this.displayname = rs.getString(3);
                     this.groupname = rs.getString(4);
                     this.cmd = rs.getString(5);
+                    this.message = rs.getString(6);
                 }
 
             } catch (SQLException e) {
                 e.printStackTrace();
                 cw.alarm("Cant execute db query. Check trace");
+            } finally {
+                database.disconnect();
             }
 
             this.locationX = Integer.parseInt(locationStr.split(";")[0]);
@@ -148,8 +154,53 @@ public class Egg {
 
     }
 
+    String getStringEggsInGroup() {
+        List<Integer> l = new ArrayList<>();
+        String sql = "select id from " + Constants.eggTable + " where groupname='" + this.groupname + "'";
+        database.connect();
+        try {
+            ResultSet rs = database.statement.executeQuery(sql);
+
+            while (rs.next()) {
+                l.add(rs.getInt(1));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            cw.alarm("Cant execute db query. Check trace");
+        } finally {
+            database.disconnect();
+        }
+
+        String out = l.toString().replace("[", "").replace("]", "");
+        return out;
+    }
+
+    Integer getAmountOf() {
+        // after that, getting amount of eggs in group
+        String sql = "SELECT COUNT(*) FROM " + Constants.eggTable + " WHERE groupname='" + this.groupname + "';";
+        cw.verboseLog(sql);
+        Integer amount = 0;
+        database.connect();
+        try {
+            ResultSet rs = database.statement.executeQuery(sql);
+
+            while (rs.next()) {
+                amount = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            cw.alarm("Cant execute db query. Check trace");
+        } finally {
+            database.disconnect();
+        }
+
+        return amount;
+    }
+
     public void delete() {
         String sql = "delete from " + Constants.eggTable + " where id=" + this.id;
+        cw.verboseLog(sql);
         database.connect();
         try {
             database.statement.execute(sql);

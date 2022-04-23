@@ -6,3 +6,12 @@ data-storage: "mysql" # mysql | json
 sql-url: "localhost:228/easter_eggs" # ip:port/database
 sql-user: "Communist"
 sql-password: "CarlMarx"
+# Rewards config
+# %, cmd that will exec on reachnig milestone
+milestone1: 50
+milestone1cmd: "minecraft:give @p stick"
+milestone2: 75
+milestone2cmd: "minecraft:effect give @p speed 5 999"
+milestone3: 90
+milestone3cmd: ""
+

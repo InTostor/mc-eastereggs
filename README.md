@@ -15,9 +15,9 @@ sense of adventure
 ## Commands ##
 
 `/secc purgeplayer <player>` - deleting all eggs, found by `player`
-`/secc addegg <displayname> <groupname> [message]` - adds egg, you are looking at with name `displayname` and relates to the `groupname`. Sending message `[message]`
+`/secc addegg <displayname> [groupname>] [message] [cmd]` - adds egg, you are looking at with name `displayname` and relates to the `groupname`. Sending message `[message]`
 (required for rewards and statistics)
-`/secc delegg` - deletes an egg, you are looking at
+`/secc delegg` - deletes an egg, you are looking at`
 
 examples
 
@@ -33,6 +33,14 @@ you should strictly follow the command layout, experiment ant try to work with t
 
 this is maven project, so you have to use maven to build this.
 cmd: `mvn package -DskipTests`
+
+## Todo ##
+
+* cmd excution on new egg found
+* cmd execution on milestone reaching
+* SQLITE, MSSQL
+* Translating (and translation selecting)
+* command regeister from plugin
 
 ### Note ###
 

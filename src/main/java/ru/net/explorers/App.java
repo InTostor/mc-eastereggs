@@ -18,9 +18,14 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.units.qual.m3;
+
+import net.md_5.bungee.api.ChatColor;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 
 //external
@@ -176,6 +181,8 @@ public class App extends JavaPlugin implements Listener {
                 + egg.id + "\n" + eggmsg +
                 "\nПрогресс: | " + foundeggs + "/" + egg.getAmountOf() + " |";
 
+        giveReward(player, foundeggs, egg.getAmountOf());
+
         if (egg.isFoundBefore(player)) {
             player.sendMessage(foundEgg);
             player.sendMessage("Но не в первый раз");
@@ -197,6 +204,33 @@ public class App extends JavaPlugin implements Listener {
 
     }
 
+    // * this should be tested well. After testing, remove this comment
+    private void giveReward(Player player, Integer foundeggs, Integer amountOf) {
+        float percentFound = foundeggs / amountOf * 100;
+        FileConfiguration cfg = plugin.getConfig();
+        float m1 = cfg.getInt("milestone1");
+        float m2 = cfg.getInt("milestone2");
+        float m3 = cfg.getInt("milestone3");
+        float m1d = percentFound - m1;
+        float m2d = percentFound - m2;
+
+        if (percentFound < m3) {
+            if (percentFound > (m1d + m2d) / 2) {
+                // Bukkit.dispatchCommand(player, cfg.getString("milestone2cmd"));
+                // ! causes exception java.lang.illegalStateException: async sommand dispatch
+            } else {
+                // Bukkit.dispatchCommand(player, cfg.getString("milestone1cmd"));
+                // ! causes exception java.lang.illegalStateException: async sommand dispatch
+            }
+        } else {
+            // Bukkit.dispatchCommand(player, cfg.getString("milestone3cmd"));
+            // ! causes exception java.lang.illegalStateException: async sommand dispatch
+        }
+        // fix:
+        // https://www.spigotmc.org/threads/java-lang-illegalstateexception-asynchronous-command-dispatch.345397/
+
+    }
+
     // todo commands
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -207,7 +241,32 @@ public class App extends JavaPlugin implements Listener {
                 break;
             case ("addegg"): {
                 Player player = (Player) sender;
-                boolean res = addEgg(player.getTargetBlock(null, 5).getLocation(), args[1], args[2], args[3]);
+                boolean res = false;
+                Integer arlen = args.length;
+                switch (args.length) {
+                    case (2): {
+                        res = addEgg(player.getTargetBlock(null, 5).getLocation(), args[1], "nogroup", ".", "");
+                        sender.sendMessage(arlen.toString());
+                    }
+                        break;
+                    case (3): {
+                        res = addEgg(player.getTargetBlock(null, 5).getLocation(), args[1], args[2], ".", "");
+                        sender.sendMessage(arlen.toString());
+                    }
+                        break;
+                    case (4): {
+                        res = addEgg(player.getTargetBlock(null, 5).getLocation(), args[1], args[2], args[3], "");
+                        sender.sendMessage(arlen.toString());
+                    }
+                        break;
+                    case (5): {
+                        res = addEgg(player.getTargetBlock(null, 5).getLocation(), args[1], args[2], args[3], args[4]);
+                        sender.sendMessage(arlen.toString());
+                    }
+                        break;
+
+                }
+
                 if (res == true) {
                     sender.sendMessage("Пасхалка создана (наверное)");
                 } else {
@@ -220,6 +279,15 @@ public class App extends JavaPlugin implements Listener {
                 Egg segg = new Egg(player.getTargetBlock(null, 5).getLocation(), database);
                 segg.completeInfo();
                 segg.delete();
+            }
+                break;
+            case ("help"): {
+                sender.sendMessage(ChatColor.DARK_AQUA + "Заходи на гитхаб, там все четко расписано (не по русски)");
+
+            }
+                break;
+            case ("debug"): {
+                sender.sendMessage(args);
             }
                 break;
             default: {
@@ -245,12 +313,13 @@ public class App extends JavaPlugin implements Listener {
 
     }
 
-    boolean addEgg(Location location, String eggDisplayName, String eggGroupName, String message) {
+    boolean addEgg(Location location, String eggDisplayName, String eggGroupName, String message, String cmd) {
         // todo inserting new egg to db. coords from <insert text>
         Double locx = location.getX();
         Double locy = location.getY();
         Double locz = location.getZ();
         String wname = location.getWorld().getName();
+        cmd = cmd.replace("_", " ");
         locx = (double) locx.intValue();
         locy = (double) locy.intValue();
         locz = (double) locz.intValue();
@@ -267,8 +336,8 @@ public class App extends JavaPlugin implements Listener {
                     + ";" + wname;
 
             String sql = "insert into " + Constants.eggTable +
-                    "(location,displayname,groupname,msg)values('" +
-                    loc + "','" + eggDisplayName + "','" + eggGroupName + "','" + message + "')";
+                    "(location,displayname,groupname,msg,cmd)values('" +
+                    loc + "','" + eggDisplayName + "','" + eggGroupName + "','" + message + "','" + cmd + "')";
             database.connect();
             try {
                 database.statement.execute(sql);

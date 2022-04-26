@@ -9,7 +9,7 @@ sql-password: "CarlMarx"
 # Rewards config
 # %, cmd that will exec on reachnig milestone
 milestone1: 50
-milestone1cmd: "minecraft:give @p stick"
+milestone1cmd: "minecraft:give @p acacia_fence"
 milestone2: 75
 milestone2cmd: "minecraft:effect give @p speed 5 999"
 milestone3: 90

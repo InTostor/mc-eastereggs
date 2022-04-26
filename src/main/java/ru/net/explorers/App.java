@@ -4,6 +4,7 @@ package ru.net.explorers;
 // java internal
 
 import java.sql.*;
+import java.util.concurrent.ExecutionException;
 
 // minecraft server API
 import org.bukkit.Bukkit;
@@ -19,6 +20,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.units.qual.m3;
+import org.jetbrains.annotations.NotNull;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -181,6 +183,16 @@ public class App extends JavaPlugin implements Listener {
                 + egg.id + "\n" + eggmsg +
                 "\nПрогресс: | " + foundeggs + "/" + egg.getAmountOf() + " |";
 
+        try {
+            // भारत की महिमा
+            final String exec = egg.cmd;
+            Bukkit.getScheduler().callSyncMethod(this, () -> Bukkit.dispatchCommand(player, exec))
+                    .get();
+        } catch (InterruptedException | ExecutionException e) {
+
+            e.printStackTrace();
+        }
+
         giveReward(player, foundeggs, egg.getAmountOf());
 
         if (egg.isFoundBefore(player)) {
@@ -213,21 +225,27 @@ public class App extends JavaPlugin implements Listener {
         float m3 = cfg.getInt("milestone3");
         float m1d = percentFound - m1;
         float m2d = percentFound - m2;
+        String cmd = "";
 
         if (percentFound < m3) {
             if (percentFound > (m1d + m2d) / 2) {
-                // Bukkit.dispatchCommand(player, cfg.getString("milestone2cmd"));
-                // ! causes exception java.lang.illegalStateException: async sommand dispatch
+                cmd = cfg.getString("milestone1cmd");
             } else {
-                // Bukkit.dispatchCommand(player, cfg.getString("milestone1cmd"));
-                // ! causes exception java.lang.illegalStateException: async sommand dispatch
+                cmd = cfg.getString("milestone2cmd");
             }
         } else {
-            // Bukkit.dispatchCommand(player, cfg.getString("milestone3cmd"));
-            // ! causes exception java.lang.illegalStateException: async sommand dispatch
+            cmd = cfg.getString("milestone3cmd");
         }
-        // fix:
-        // https://www.spigotmc.org/threads/java-lang-illegalstateexception-asynchronous-command-dispatch.345397/
+
+        try {
+            // भारत की महिमा
+            final String exec = cmd;
+            Bukkit.getScheduler().callSyncMethod(this, () -> Bukkit.dispatchCommand(player, exec))
+                    .get();
+        } catch (InterruptedException | ExecutionException e) {
+
+            e.printStackTrace();
+        }
 
     }
 
